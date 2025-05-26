@@ -18,6 +18,7 @@ namespace Automatic_DM3
         private readonly ReverserControl reverser;
 
         private bool changingGears = false;
+        private Coroutine gearChange;
 
         internal GearShifter(TrainCar DM3)
         {
@@ -40,16 +41,21 @@ namespace Automatic_DM3
             if (engineRPMPort.Value > Main.settings.maxRPM && !(gearA.Value == 1 && gearB.Value == 1))
             {
                 changingGears = true;
-                car.StartCoroutine(ChangeGear(1));
+                gearChange = car.StartCoroutine(ChangeGear(1));
                 return;
             }
 
             if (engineRPMPort.Value < Main.settings.minRPM && !(gearA.Value == 0 && gearB.Value == 0))
             {
                 changingGears = true;
-                car.StartCoroutine(ChangeGear(-1));
+                gearChange = car.StartCoroutine(ChangeGear(-1));
                 return;
             }
+        }
+
+        internal void Stop()
+        {
+            car.StopCoroutine(gearChange);
         }
 
         private static readonly (float, float)[] gearOrder = { (0, 0), (0, 0.5f), (0.5f, 0), (0.5f, 0.5f), (1, 0), (1, 0.5f), (0.5f, 1), (1, 1) };
@@ -84,7 +90,7 @@ namespace Automatic_DM3
             (float nextA, float nextB) = NextGear(gearA.Value, gearB.Value, amount);
             gearA.ExternalValueUpdate(nextA);
             gearB.ExternalValueUpdate(nextB);
-            yield return new WaitForSeconds(Main.settings.shiftDelay);
+            if (t != 0 || b != 0) yield return new WaitForSeconds(Main.settings.shiftDelay);
 
             if (t != 0) throttle.Set(t);
             if (b != 0) dynamicBrake.Set(b);

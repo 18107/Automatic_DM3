@@ -32,11 +32,11 @@ namespace Automatic_DM3
 
             //Setup GUI
             settings = Settings.Load<Settings>(modEntry);
-            mod.OnGUI += (mod) => settings.Draw(mod);
-            mod.OnSaveGUI += (mod) => settings.Save(mod);
-            mod.OnToggle += (mod, value) => true;
+            mod.OnGUI += settings.Draw;
+            mod.OnSaveGUI += settings.Save;
+            mod.OnToggle += (mod, value) => { gearShifter?.Stop(); return true; };
 
-            PlayerManager.CarChanged += (car) => gearShifter = car != null && car.carType == TrainCarType.LocoDM3 ? new GearShifter(car) : null;
+            PlayerManager.CarChanged += (car) => gearShifter = (car?.carType == TrainCarType.LocoDM3 ? new GearShifter(car) : null);
             mod.OnFixedUpdate += (mod, dt) => gearShifter?.Update();
 
             return true; //Loaded successfully

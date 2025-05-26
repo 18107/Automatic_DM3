@@ -2,7 +2,7 @@
 
 namespace Automatic_DM3
 {
-    internal class Settings : UnityModManager.ModSettings, IDrawable
+    public class Settings : UnityModManager.ModSettings, IDrawable
     {
         [Draw("Max RPM", Tooltip = "The RPM to shift up a gear. Redline is 1000. Default 900")]
         public float maxRPM = 900;
