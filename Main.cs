@@ -1,5 +1,4 @@
-﻿using DV.ThingTypes;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using System.Reflection;
 using UnityModManagerNet;
@@ -12,7 +11,7 @@ namespace Automatic_DM3
 
         internal static Settings settings { get; private set; }
 
-        private static GearShifter gearShifter;
+        internal static readonly DM3List DM3s = new DM3List();
 
         private static bool Load(UnityModManager.ModEntry modEntry)
         {
@@ -32,12 +31,11 @@ namespace Automatic_DM3
 
             //Setup GUI
             settings = Settings.Load<Settings>(modEntry);
+            settings.PostLoad();
             mod.OnGUI += settings.Draw;
             mod.OnSaveGUI += settings.Save;
-            mod.OnToggle += (mod, value) => { gearShifter?.Stop(); return true; };
-
-            PlayerManager.CarChanged += (car) => gearShifter = (car?.carType == TrainCarType.LocoDM3 ? new GearShifter(car) : null);
-            mod.OnFixedUpdate += (mod, dt) => gearShifter?.Update();
+            mod.OnToggle += (mod, value) => { DM3s.ForEach(s => s.OnEndControl()); return true; };
+            mod.OnFixedUpdate += DM3s.FixedUpdate;
 
             return true; //Loaded successfully
         }

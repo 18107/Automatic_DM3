@@ -2,7 +2,7 @@
   "Id": "AutomaticDM3",
   "DisplayName": "Automatic DM3",
   "Author": "18107",
-  "Version": "1.0.1",
+  "Version": "2.0.0",
   "EntryMethod": "Automatic_DM3.Main.Load",
   "AssemblyName": "Automatic DM3.dll",
   "Homepage": "https://www.nexusmods.com/derailvalley/mods/1188",
