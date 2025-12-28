@@ -32,10 +32,23 @@ namespace Automatic_DM3
             //Setup GUI
             settings = Settings.Load<Settings>(modEntry);
             settings.PostLoad();
-            mod.OnGUI += settings.Draw;
-            mod.OnSaveGUI += settings.Save;
-            mod.OnToggle += (mod, value) => { DM3s.ForEach(s => s.OnEndControl()); return true; };
-            mod.OnFixedUpdate += DM3s.FixedUpdate;
+            modEntry.OnGUI += settings.OnGui;
+            modEntry.OnSaveGUI += settings.Save;
+            modEntry.OnFixedUpdate += DM3s.FixedUpdate;
+            modEntry.OnToggle += (mod, value) =>
+            {
+                if (value)
+                {
+                    //Find any DM3s not already registered in case the mod was disabled when the game was loaded
+                    DM3s.AddAll();
+                }
+                else
+                {
+                    DM3s.ForEach(s => s.OnEndControl());
+                }
+                //Mod toggled sucessfully
+                return true;
+            };
 
             return true; //Loaded successfully
         }

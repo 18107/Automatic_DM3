@@ -2,6 +2,7 @@
   "Releases": [
     { "Id": "AutomaticDM3", "Version": "1.0.0", "DownloadUrl": "https://github.com/18107/Automatic_DM3/releases/download/1.0.0/Automatic_DM3.zip" },
     { "Id": "AutomaticDM3", "Version": "1.0.1", "DownloadUrl": "https://github.com/18107/Automatic_DM3/releases/download/1.0.1/Automatic_DM3.zip" },
-    { "Id": "AutomaticDM3", "Version": "2.0.0", "DownloadUrl": "https://github.com/18107/Automatic_DM3/releases/download/2.0.0/Automatic_DM3.zip" }
+    { "Id": "AutomaticDM3", "Version": "2.0.0", "DownloadUrl": "https://github.com/18107/Automatic_DM3/releases/download/2.0.0/Automatic_DM3.zip" },
+    { "Id": "AutomaticDM3", "Version": "2.1.0", "DownloadUrl": "https://github.com/18107/Automatic_DM3/releases/download/2.1.0/Automatic_DM3.zip" }
   ]
 }

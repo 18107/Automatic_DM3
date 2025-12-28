@@ -1,4 +1,5 @@
-﻿using LocoSim.Implementations;
+﻿using DV.Utils;
+using LocoSim.Implementations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,11 @@ namespace Automatic_DM3
     {
         private readonly Dictionary<TrainCar, GearShifter> DM3s = new Dictionary<TrainCar, GearShifter>();
         private readonly Dictionary<SmoothTransmission, GearShifter> transmissionLookup = new Dictionary<SmoothTransmission, GearShifter>();
+
+        internal void AddAll()
+        {
+            SingletonBehaviour<CarSpawner>.Instance?.AllLocos?.ForEach(l => { if (l.carType == DV.ThingTypes.TrainCarType.LocoDM3 && !DM3s.ContainsKey(l)) Add(l); });
+        }
 
         internal void Add(TrainCar car)
         {
@@ -45,7 +51,7 @@ namespace Automatic_DM3
             transmissionLookup.Remove(smoothTransmissionA);
             transmissionLookup.Remove(smoothTransmissionB);
 
-            smoothTransmissionA.powerShiftRpmThreshold = 400; //SmoothTransmissionDefinition.powerShiftRpmThreshold
+            smoothTransmissionA.powerShiftRpmThreshold = 400;
             smoothTransmissionB.powerShiftRpmThreshold = 400;
         }
 

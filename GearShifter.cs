@@ -25,8 +25,6 @@ namespace Automatic_DM3
         private float gearUpTime = 0;
         private float gearDownTime = 0;
 
-        internal readonly SmoothTransmission transmissionA;
-        internal readonly SmoothTransmission transmissionB;
         internal float CVTRatio { get; private set; }
 
         private static readonly float[] ratios = { 20, 15, 12, 9, 8, 6, 4.5f, 3 };
@@ -58,36 +56,36 @@ namespace Automatic_DM3
             dynamicBrake = controlsOverrider.DynamicBrake;
             reverser = controlsOverrider.Reverser;
 
-            transmissionA = simFlow.OrderedSimComps[31] as SmoothTransmission;
-            transmissionB = simFlow.OrderedSimComps[32] as SmoothTransmission;
             CVTRatio = ratios[gearLookup[(gearA.Value, gearB.Value)]];
         }
 
         internal void Update()
         {
-            if (!Main.mod.Enabled) return;
-
             if (changingGears) return;
             if (reverser.Value == 0.5f) return;
 
             //See also SmoothTransmissionPatch
-            if (Main.settings.CVT)
+            if (Main.settings.CVTActive)
             {
                 //Engine RPM slips slightly above and below the driveshaft RPM.
                 float RPMoffset = (throttle.Value - dynamicBrake.Value) * 80;
 
+                //Higher RPM for more power or braking
+                float targetRPM = (850 - 250)*(throttle.Value + dynamicBrake.Value) + 250;
+
                 //Calculate gear ratio for ideal engine RPM
-                float newRatio = Main.settings.targetRPM / (Math.Abs(driveshaftRPMPort.Value) + RPMoffset) * CVTRatio;
+                float newRatio = targetRPM / (Mathf.Abs(driveshaftRPMPort.Value) + RPMoffset) * CVTRatio;
 
                 //Limit gear ratio
                 if (Main.settings.IVT)
                 {
-                    newRatio = Mathf.Clamp(newRatio, float.Epsilon, 80); //Technical/traction limitations
+                    newRatio = Mathf.Clamp(newRatio, Main.settings.IVTMax, Main.settings.IVTMin);
                 }
                 else
                 {
                     newRatio = Mathf.Clamp(newRatio, 3, 20); //Default gear range
                 }
+
                 //Limit gear change speed
                 CVTRatio = Mathf.Clamp(newRatio / CVTRatio, 0.98f, 1.02f) * CVTRatio;
                 return;
@@ -111,7 +109,7 @@ namespace Automatic_DM3
 
             //Downshift if RPM would be less than max after downshifting. RPMoffset to prevent hunting
             int currentGear = gearLookup[(gearA.Value, gearB.Value)];
-            if (currentGear > 0 && engineRPMPort.Value * ratios[currentGear - 1] / ratios[currentGear] < Main.settings.maxRPM - Main.settings.RPMoffset)
+            if (currentGear > 0 && (engineRPMPort.Value * ratios[currentGear - 1] / ratios[currentGear]) < (Main.settings.maxRPM - Main.settings.RPMoffset))
             {
                 changingGears = true;
                 endGearChange = false;
@@ -136,8 +134,6 @@ namespace Automatic_DM3
 
         internal void OnEndControl()
         {
-            if (!Main.mod.Enabled) return;
-
             StopShift();
 
             //Select the most suitable gear ratio to leave the locomotive in
@@ -159,18 +155,18 @@ namespace Automatic_DM3
             else
             {
                 if (!Main.mod.Enabled) return;
-                if (reverser.Value == 0.5) return;
+                if (reverser.Value == 0.5f) return;
 
                 //Find adequate gear for current speed
                 float[] speeds = { 7, 9, 12, 15, 17, 23, 30, float.PositiveInfinity };
-                int neededGear = Array.FindIndex(speeds, x => Math.Abs(wheelSpeedPort.Value) < x);
+                int neededGear = Array.FindIndex(speeds, x => Mathf.Abs(wheelSpeedPort.Value) < x);
                 int currentGear = gearLookup[(gearA.Value, gearB.Value)];
 
                 //Change gear
                 if (neededGear != currentGear)
                 {
                     changingGears = true;
-                    endGearChange = true; //skip waiting times
+                    endGearChange = true; //Skip waiting times
                     car.StartCoroutine(ChangeGear(neededGear - currentGear));
                 }
             }
@@ -254,7 +250,7 @@ namespace Automatic_DM3
             {
                 if (value == 0) return;
 
-                //save value to increase throttle after shifting
+                //Save value to increase throttle after shifting
                 t += value;
 
                 //Wait one frame to reset throttle
@@ -270,7 +266,7 @@ namespace Automatic_DM3
             {
                 if (value == 0) return;
 
-                //record value to increase dynamic brake after shifting
+                //Save value to increase dynamic brake after shifting
                 b += value;
 
                 //Wait one frame to reset brake

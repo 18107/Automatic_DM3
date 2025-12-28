@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using DV.ThingTypes;
+using HarmonyLib;
 
 namespace Automatic_DM3
 {
@@ -9,7 +10,7 @@ namespace Automatic_DM3
         [HarmonyPatch("Awake")]
         static void Awake(TrainCar __instance)
         {
-            if (__instance.carType == DV.ThingTypes.TrainCarType.LocoDM3)
+            if (__instance.carType == TrainCarType.LocoDM3)
             {
                 Main.DM3s.Add(__instance);
             }
@@ -19,7 +20,7 @@ namespace Automatic_DM3
         [HarmonyPatch("AwakeForPooledCar")]
         static void AwakeForPooledCar(TrainCar __instance)
         {
-            if (__instance.carType == DV.ThingTypes.TrainCarType.LocoDM3)
+            if (__instance.carType == TrainCarType.LocoDM3)
             {
                 Main.DM3s.Add(__instance);
             }
@@ -29,7 +30,7 @@ namespace Automatic_DM3
         [HarmonyPatch("PrepareForDestroy")]
         static void PrepareForDestroy(TrainCar __instance)
         {
-            if (__instance.carType == DV.ThingTypes.TrainCarType.LocoDM3)
+            if (__instance.carType == TrainCarType.LocoDM3)
             {
                 Main.DM3s.Remove(__instance);
             }
